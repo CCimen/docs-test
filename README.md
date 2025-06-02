@@ -2,13 +2,13 @@
 
 <div align="center">
 
-<img src="old-docs-to-update/assets/intric-logo.png" alt="Intric" width="300">
+<img src="assets/intric-logo.png" alt="Intric" width="300">
 
 **An open-source AI-powered knowledge management platform**
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Made for: Organizations](https://img.shields.io/badge/Made%20for-Organizations-orange)](https://github.com/intric-ai/intric-community)
-[![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-brightgreen.svg)](old-docs-to-update/contributing.md)
+[![Made for: Organizations](https://img.shields.io/badge/Made%20for-Organizations-orange)](https://github.com/inooLabs/intric-community)
+[![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-brightgreen.svg)](docs/contributing.md)
 
 [Features](#features) • [Quick Start](#quick-start) • [Documentation](#documentation) • [Architecture](#architecture) • [Development](#development) • [Deployment](#deployment) • [Contributing](#contributing)
 
@@ -64,90 +64,137 @@ Intric is an open-source AI platform that empowers organizations to create, depl
 - **Vector Database**: PostgreSQL with pgvector extension for semantic search
 
 <div align="center">
-<img src="old-docs-to-update/assets/intric-interface.png" alt="Intric Platform Interface" width="700">
+<img src="assets/intric-interface.png" alt="Intric Platform Interface" width="700">
 <p><i>The Intric platform interface showing various AI assistants</i></p>
 </div>
 
 ## 🚀 Quick Start
 
-Choose your setup based on your use case:
+### 🐳 Development with VS Code Devcontainer (Easiest - 5 minutes)
 
-### 💻 Development Setup
+**Perfect for beginners** - Everything is pre-configured, no manual setup needed!
 
-#### Option 1: Devcontainer (Fastest - Recommended)
+#### Prerequisites
+1. **Install Docker Desktop**: [Download here](https://www.docker.com/products/docker-desktop/)
+   - Make sure Docker Desktop is **running** (you'll see the whale icon in your system tray)
+2. **Install VS Code**: [Download here](https://code.visualstudio.com/)
+3. **Install the Dev Containers extension** in VS Code:
+   - Open VS Code
+   - Click the Extensions icon (or press `Ctrl+Shift+X` / `Cmd+Shift+X`)
+   - Search for "Dev Containers" by Microsoft
+   - Click Install
 
-Perfect for development with all dependencies pre-configured:
+#### Setup Steps
 
-1. **Prerequisites**: Docker and VS Code with Dev Containers extension
-2. **Clone and Open**:
+1. **Clone the repository**:
    ```bash
-   git clone https://github.com/intric-ai/intric-community.git
+   git clone https://github.com/inooLabs/intric-community.git
    cd intric-community
-   code .  # VS Code will prompt to "Reopen in Container"
    ```
-3. **Start Services** (the devcontainer shows instructions):
+
+2. **Open in VS Code**:
    ```bash
-   # Terminal 1: Backend
-   cd backend && poetry run python init_db.py && poetry run start
-   
-   # Terminal 2: Frontend  
-   cd frontend && pnpm run dev
-   
-   # Terminal 3: Worker (optional)
-   cd backend && poetry run arq src.intric.worker.arq.WorkerSettings
+   code .
    ```
 
-#### Option 2: Local Development Setup
+3. **Reopen in Container**:
+   - VS Code will show a popup: "Folder contains a Dev Container configuration"
+   - Click **"Reopen in Container"**
+   - Wait ~2-3 minutes for the container to build (only first time)
 
-**Prerequisites:**
-- **Python 3.11+**
-- **Node.js 18+**
-- **pnpm 9.12.3**
-- **Docker & Docker Compose**
-- **System libraries**: `libmagic1` and `ffmpeg`
+4. **Start the application** (in VS Code terminal):
+   
+   Open 3 terminals in VS Code (`Terminal → New Terminal`) and run:
 
-```bash
-# Install required system libraries (Ubuntu/Debian)
-sudo apt-get install libmagic1 ffmpeg
-```
+   **Terminal 1 - Backend**:
+   ```bash
+   cd backend
+   poetry run python init_db.py  # First time only - creates database
+   poetry run start
+   ```
 
-**Setup Steps:**
+   **Terminal 2 - Frontend**:
+   ```bash
+   cd frontend
+   pnpm run dev
+   ```
+
+   **Terminal 3 - Worker** (optional but recommended for file uploads):
+   ```bash
+   cd backend
+   poetry run arq src.intric.worker.arq.WorkerSettings
+   ```
+
+5. **Access Intric**:
+   - Open your browser to http://localhost:3000
+   - Login with: `user@example.com` / `Password1!`
+
+That's it! 🎉 You're now running Intric locally.
+
+#### Common Issues & Solutions
+
+**Docker not running?**
+- Windows/Mac: Check the whale icon in your system tray - it should be running
+- Linux: Run `sudo systemctl status docker`
+
+**"Reopen in Container" not showing?**
+- Make sure you installed the "Dev Containers" extension
+- Try: `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac) → Type "Dev Containers: Reopen in Container"
+
+**Container build fails?**
+- Make sure Docker Desktop has enough resources: Settings → Resources → Increase Memory to 4GB+
+- Try: Delete containers/images in Docker Desktop and rebuild
+
+**Can't access http://localhost:3000?**
+- Check all 3 terminals are running without errors
+- Wait 30 seconds for services to fully start
+- Try: http://127.0.0.1:3000 instead
+
+### 💻 Manual Local Setup (Advanced)
 
 <details>
-<summary>Click to view detailed setup commands</summary>
+<summary>For developers who prefer manual setup without devcontainer</summary>
+
+**Prerequisites:**
+- Python 3.11+
+- Node.js 18+
+- pnpm 9.12.3
+- Docker & Docker Compose
+- System libraries: `libmagic1` and `ffmpeg`
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/intric-ai/intric-community.git
+git clone https://github.com/inooLabs/intric-community.git
 cd intric-community
 
-# 2. Set up environment files
+# 2. Install system dependencies (Ubuntu/Debian)
+sudo apt-get install libmagic1 ffmpeg
+
+# 3. Set up environment files
 cp backend/.env.template backend/.env
 cp frontend/apps/web/.env.example frontend/apps/web/.env
 
-# 3. Edit environment files (add your LLM API keys)
-# Backend: Set JWT_SECRET, POSTGRES_PASSWORD, API keys
-# Frontend: Set JWT_SECRET (must match backend), INTRIC_BACKEND_URL
+# 4. Edit environment files (add your LLM API keys)
+# Backend: Set JWT_SECRET, API keys (OpenAI, Anthropic, etc.)
+# Frontend: Set JWT_SECRET (must match backend)
 
-# 4. Start infrastructure services (PostgreSQL with pgvector and Redis)
+# 5. Start infrastructure services
 cd backend
 docker compose up -d
 
-# 5. Install and setup backend
+# 6. Install and setup backend
 poetry install
-poetry run python init_db.py  # Creates database schema and default user
+poetry run python init_db.py
+poetry run start  # Terminal 1
 
-# 6. Start the backend API server (Terminal 1)
-poetry run start  # Runs on port 8000
-
-# 7. Start background worker (Terminal 2 - Optional but recommended)
+# 7. Start worker (Terminal 2)
 poetry run arq src.intric.worker.arq.WorkerSettings
 
 # 8. Install and setup frontend (Terminal 3)
 cd ../frontend
 pnpm install
 pnpm run setup
-pnpm -w run dev  # Runs on port 3000
+pnpm -w run dev
 ```
 
 </details>

@@ -1008,7 +1008,7 @@ This guide provides solutions for common issues encountered when deploying, deve
 If you're still experiencing issues:
 
 1. **Check existing resources:**
-   - GitHub Issues: https://github.com/intric-ai/intric-community/issues
+   - GitHub Issues: https://github.com/inooLabs/intric-community/issues
    - Documentation: `/docs` folder
    - Deployment Guide: [deployment-guide.md](deployment-guide.md)
 

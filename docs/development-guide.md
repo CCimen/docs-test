@@ -5,8 +5,13 @@
 ### 🚀 Devcontainer (Recommended - 5 minutes)
 Perfect for development with all dependencies pre-configured:
 
-1. **Prerequisites**: Docker + VS Code with Dev Containers extension
-2. **Clone and Open**: `git clone https://github.com/intric-ai/intric-community.git && cd intric-community && code .`
+1. **Prerequisites**: Docker Desktop (running) + VS Code with Dev Containers extension
+2. **Clone and Open**: 
+   ```bash
+   git clone https://github.com/inooLabs/intric-community.git
+   cd intric-community
+   code .
+   ```
 3. **Reopen in Container** when prompted by VS Code (this starts PostgreSQL and Redis automatically)
 4. **After container starts, you'll see instructions**. Run these commands in separate terminals:
 
@@ -40,8 +45,10 @@ Perfect for development with all dependencies pre-configured:
 
 ```bash
 # 1. Clone and setup environment
-git clone https://github.com/intric-ai/intric-community.git && cd intric-community
-cp backend/.env.template backend/.env && cp frontend/apps/web/.env.example frontend/apps/web/.env
+git clone https://github.com/inooLabs/intric-community.git
+cd intric-community
+cp backend/.env.template backend/.env
+cp frontend/apps/web/.env.example frontend/apps/web/.env
 
 # 2. Start infrastructure and setup backend
 cd backend && docker compose up -d
@@ -100,7 +107,7 @@ Follow these steps to set up your development environment:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/intric-ai/intric-community.git
+   git clone https://github.com/inooLabs/intric-community.git
    cd intric-community
    ```
 
