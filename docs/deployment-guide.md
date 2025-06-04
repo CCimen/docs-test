@@ -1,40 +1,130 @@
 # Intric Production Deployment Guide
 
-## Quick Start Options
+## 🚀 Quick Start (10 minutes)
 
-### 🚀 Production Deployment (10 minutes)
+Deploy Intric using pre-built public images from GitHub Container Registry:
+
 ```bash
-# 1. Install container runtime (Podman recommended, Docker also works)
-sudo dnf install podman podman-compose   # RHEL8/CentOS/Fedora
-# OR: sudo apt install docker.io docker-compose   # Ubuntu/Debian
+# 1. Create deployment directory
+sudo mkdir -p /opt/intric && cd /opt/intric
 
-# 2. Create project directory
-sudo mkdir -p /opt/intric-production && cd /opt/intric-production
+# 2. Download the example docker-compose.yml
+curl -O https://raw.githubusercontent.com/inooLabs/intric-community/main/docker-compose.prod.yml
+mv docker-compose.prod.yml docker-compose.yml
 
-# 3. Download deployment files from releases or create manually:
-# - podman-compose.yaml (service definitions)
-# - .env (container images and ports)  
-# - env_backend (API keys, security config)
-# - env_db (database settings)
-# - env_frontend (frontend URLs)
+# 3. Create environment files (see minimal examples below)
+touch .env env_backend env_db env_frontend
 
-# 4. Set permissions and deploy
-sudo chmod 600 env_* && sudo chown -R 999:999 data/
-podman-compose up -d   # or: docker-compose up -d
+# 4. Configure .env with PUBLIC IMAGES (IMPORTANT!)
+cat > .env << 'EOF'
+# Public images from GitHub Container Registry
+BACKEND_IMAGE=ghcr.io/inoolabs/intric-community-backend
+FRONTEND_IMAGE=ghcr.io/inoolabs/intric-community-frontend
+BACKEND_TAG=latest
+FRONTEND_TAG=latest
 
-# 5. Verify deployment
-podman-compose ps && curl http://localhost:8000/version
+# Port configuration
+BACKEND_PORT=8000
+FRONTEND_PORT=3000
+
+# Database and Redis (always available)
+DB_IMAGE=pgvector/pgvector
+DB_TAG=pg16
+REDIS_IMAGE=redis
+REDIS_TAG=latest
+EOF
+
+# 5. Configure minimal env_backend (CHANGE SECRETS!)
+cat > env_backend << 'EOF'
+# REQUIRED: Add at least one AI provider key
+OPENAI_API_KEY=sk-...  # Replace with your actual key
+
+# REQUIRED: Security - MUST CHANGE THESE!
+JWT_SECRET=change-me-$(openssl rand -hex 32)
+URL_SIGNING_KEY=change-me-$(openssl rand -hex 32)
+
+# REQUIRED: Infrastructure (don't change these)
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=postgres
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+# REQUIRED: Default settings
+JWT_AUDIENCE=*
+JWT_ISSUER=INTRIC
+JWT_EXPIRY_TIME=86400
+JWT_ALGORITHM=HS256
+API_PREFIX=/api/v1
+API_KEY_LENGTH=64
+UPLOAD_FILE_TO_SESSION_MAX_SIZE=1048576
+UPLOAD_IMAGE_TO_SESSION_MAX_SIZE=1048576
+UPLOAD_MAX_FILE_SIZE=10485760
+TRANSCRIPTION_MAX_FILE_SIZE=10485760
+MAX_IN_QUESTION=1
+EOF
+
+# 6. Configure env_db
+cat > env_db << 'EOF'
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=postgres
+EOF
+
+# 7. Configure env_frontend
+cat > env_frontend << 'EOF'
+# Update domain for production!
+ORIGIN=http://localhost:3000
+INTRIC_BACKEND_URL=http://localhost:8000
+INTRIC_BACKEND_SERVER_URL=http://backend:8000
+
+# Must match backend JWT_SECRET
+JWT_SECRET=change-me-$(openssl rand -hex 32)
+EOF
+
+# 8. Set permissions and create data directories
+sudo chmod 600 env_*
+sudo mkdir -p data/{backend,pgvector,redis}
+sudo chown -R 999:999 data/
+
+# 9. Deploy!
+docker compose up -d
+
+# 10. Verify (wait ~30 seconds for initialization)
+docker compose ps
+curl http://localhost:8000/version
+```
+
+### ✅ Common Issues and Solutions
+
+**"manifest unknown" or "pull access denied" error?**
+- Your `.env` file has incorrect image names
+- Verify `BACKEND_IMAGE=ghcr.io/inoolabs/intric-community-backend`
+- NOT `BACKEND_IMAGE=intric-backend` or similar
+
+**Still having issues?** Build from source:
+```bash
+git clone https://github.com/inooLabs/intric-community.git
+cd intric-community
+docker build -t intric-backend:latest ./backend
+docker build -t intric-frontend:latest ./frontend
+
+# Update .env to use local images:
+BACKEND_IMAGE=intric-backend
+FRONTEND_IMAGE=intric-frontend
 ```
 
 ### 💻 Development Setup (5 minutes)
 ```bash
 # Option 1: Devcontainer (Recommended)
-git clone https://github.com/intric-community/intric.git
-cd intric && code .  # VS Code will prompt to open in container
+git clone https://github.com/inooLabs/intric-community.git
+cd intric-community && code .  # VS Code will prompt to open in container
 
 # Option 2: Local Development
-git clone https://github.com/intric-community/intric.git
-cd intric/backend && docker compose up -d  # Start PostgreSQL + Redis
+git clone https://github.com/inooLabs/intric-community.git
+cd intric-community/backend && docker compose up -d  # Start PostgreSQL + Redis
 cp .env.template .env  # Edit with your settings
 poetry install && poetry run python init_db.py && poetry run start
 # In another terminal: cd ../frontend && pnpm install && pnpm -w run dev
@@ -119,11 +209,47 @@ All services run as containers managed by podman-compose with persistent data vo
 - **SELinux** and firewall configuration (RHEL8 specific)
 - **systemd** for service management and autostart
 
-### Container Images Required
-- Backend API container (contains Python 3.11+, FastAPI application)
-- Frontend container (contains Node.js 18+, built SvelteKit application)
-- PostgreSQL 16 with pgvector extension (`pgvector/pgvector:pg16`)
-- Redis latest (`redis:latest`)
+### Container Images
+
+**✅ Public Images (Recommended)**
+
+Intric provides public container images on GitHub Container Registry:
+
+```bash
+# Backend image
+docker pull ghcr.io/inoolabs/intric-community-backend:latest
+
+# Frontend image  
+docker pull ghcr.io/inoolabs/intric-community-frontend:latest
+
+# These are configured in your .env file:
+BACKEND_IMAGE=ghcr.io/inoolabs/intric-community-backend
+FRONTEND_IMAGE=ghcr.io/inoolabs/intric-community-frontend
+```
+
+**Alternative: Build from Source**
+
+If you need custom modifications or the public images aren't working:
+
+```bash
+# Clone and build your own images
+git clone https://github.com/inooLabs/intric-community.git
+cd intric-community
+
+# Build backend
+docker build -t intric-backend:latest ./backend
+
+# Build frontend  
+docker build -t intric-frontend:latest ./frontend
+
+# Update .env to use local images:
+BACKEND_IMAGE=intric-backend
+FRONTEND_IMAGE=intric-frontend
+```
+
+**Infrastructure Images (Always Available):**
+- PostgreSQL 16 with pgvector: `pgvector/pgvector:pg16`
+- Redis: `redis:latest`
 
 ### External Dependencies
 - At least one AI model provider API key (OpenAI, Anthropic, Azure, etc.)
@@ -136,24 +262,28 @@ Intric uses multiple environment files for configuration. All values must be pro
 
 ### `.env` - Container Images and Ports
 
-Main compose configuration:
+**IMPORTANT: Use the correct image names to avoid "manifest unknown" errors!**
 
 ```bash
-# Container Images (adjust to your registry or use public images)
-FRONTEND_IMAGE=intric/frontend  # Or your registry: your-registry.com/intric/frontend
+# Container Images - Use PUBLIC images from GitHub Container Registry
+BACKEND_IMAGE=ghcr.io/inoolabs/intric-community-backend
+FRONTEND_IMAGE=ghcr.io/inoolabs/intric-community-frontend
+BACKEND_TAG=latest
 FRONTEND_TAG=latest
+
+# Port configuration
+BACKEND_PORT=8000
 FRONTEND_PORT=3000
 
-BACKEND_IMAGE=intric/backend    # Or your registry: your-registry.com/intric/backend  
-BACKEND_TAG=latest
-BACKEND_PORT=8000               # Use 8123 for production if running multiple instances
-
-# Official images
+# Database and Cache Images (Always Available)
 DB_IMAGE=pgvector/pgvector
 DB_TAG=pg16
-
 REDIS_IMAGE=redis
 REDIS_TAG=latest
+
+# Alternative: If building from source
+# BACKEND_IMAGE=intric-backend
+# FRONTEND_IMAGE=intric-frontend
 ```
 
 ### `env_db` - Database Configuration
@@ -488,7 +618,80 @@ networks:
    cd /opt/intric-production
    ```
 
-2. **Create environment files** with the configurations from the Environment Variables section above
+2. **Create environment files** with the configurations from the Environment Variables section above.
+   
+   **Quick start example files:**
+   
+   Create `.env`:
+   ```bash
+   # Container Images - Use PUBLIC images!
+   BACKEND_IMAGE=ghcr.io/inoolabs/intric-community-backend
+   FRONTEND_IMAGE=ghcr.io/inoolabs/intric-community-frontend
+   BACKEND_TAG=latest
+   FRONTEND_TAG=latest
+   
+   # Port configuration
+   BACKEND_PORT=8000
+   FRONTEND_PORT=3000
+   
+   # Database and Redis
+   DB_IMAGE=pgvector/pgvector
+   DB_TAG=pg16
+   REDIS_IMAGE=redis
+   REDIS_TAG=latest
+   ```
+   
+   Create minimal `env_backend`:
+   ```bash
+   # Required - Add at least one AI provider
+   OPENAI_API_KEY=sk-...  # or ANTHROPIC_API_KEY=sk-ant-...
+   
+   # Required - Security (CHANGE THESE!)
+   JWT_SECRET=change-me-to-random-string
+   URL_SIGNING_KEY=change-me-to-another-random-string
+   
+   # Required - Keep these defaults
+   POSTGRES_HOST=db
+   POSTGRES_PORT=5432
+   POSTGRES_USER=postgres
+   POSTGRES_PASSWORD=postgres
+   POSTGRES_DB=postgres
+   REDIS_HOST=redis
+   REDIS_PORT=6379
+   
+   # Required - File upload limits
+   UPLOAD_FILE_TO_SESSION_MAX_SIZE=1048576
+   UPLOAD_IMAGE_TO_SESSION_MAX_SIZE=1048576
+   UPLOAD_MAX_FILE_SIZE=10485760
+   TRANSCRIPTION_MAX_FILE_SIZE=10485760
+   MAX_IN_QUESTION=1
+   
+   # Required - API settings
+   API_PREFIX=/api/v1
+   API_KEY_LENGTH=64
+   JWT_AUDIENCE=*
+   JWT_ISSUER=EXAMPLE
+   JWT_EXPIRY_TIME=86000
+   JWT_ALGORITHM=HS256
+   ```
+   
+   Create minimal `env_db`:
+   ```bash
+   POSTGRES_USER=postgres
+   POSTGRES_PASSWORD=postgres
+   POSTGRES_DB=postgres
+   ```
+   
+   Create minimal `env_frontend`:
+   ```bash
+   # URLs - adjust domain for production
+   ORIGIN=http://localhost:3000
+   INTRIC_BACKEND_URL=http://localhost:8000
+   INTRIC_BACKEND_SERVER_URL=http://backend:8000
+   
+   # Must match backend
+   JWT_SECRET=change-me-to-random-string
+   ```
 
 3. **Set proper file permissions**:
    ```bash
@@ -496,16 +699,26 @@ networks:
    sudo chown -R 999:999 data/
    ```
 
-4. **Deploy with podman-compose**:
+4. **Deploy with Docker or Podman**:
    ```bash
+   # Using Docker Compose
+   docker compose up -d
+   
+   # OR using Podman Compose
    podman-compose up -d
    ```
 
 5. **Verify deployment**:
    ```bash
-   podman-compose ps
-   podman-compose logs frontend
-   podman-compose logs backend
+   # Check container status
+   docker compose ps       # or: podman-compose ps
+   
+   # View logs if needed
+   docker compose logs frontend   # or: podman-compose logs frontend
+   docker compose logs backend    # or: podman-compose logs backend
+   
+   # Test backend API
+   curl http://localhost:8000/version
    ```
 
 ### Systemd Integration
@@ -1102,11 +1315,18 @@ To update Intric containers:
    /opt/intric-production/scripts/backup.sh
    ```
 
-2. **Pull new container images**:
+2. **Update images** (rebuild from latest source):
    ```bash
+   # Pull latest source code
+   cd /path/to/intric-community
+   git pull origin main
+   
+   # Rebuild images
+   docker build -t intric-backend:latest ./backend
+   docker build -t intric-frontend:latest ./frontend
+   
+   # Return to deployment directory
    cd /opt/intric-production
-   podman pull ${BACKEND_IMAGE}:${BACKEND_TAG}
-   podman pull ${FRONTEND_IMAGE}:${FRONTEND_TAG}
    ```
 
 3. **Update with podman-compose**:
@@ -1179,6 +1399,73 @@ Key metrics to monitor in production:
    # Monitor HAProxy logs
    sudo tail -f /var/log/haproxy.log
    ```
+
+## Common Deployment Issues
+
+### Docker Image Pull Errors
+
+**Symptom: "manifest unknown" error**
+```
+✘ backend Error  manifest unknown
+✘ frontend Error manifest unknown
+Error response from daemon: manifest unknown
+```
+
+**Cause:** Your `.env` file has incorrect image names.
+
+**Solution:** Update your `.env` file with the correct public image names:
+```bash
+# CORRECT - Public images
+BACKEND_IMAGE=ghcr.io/inoolabs/intric-community-backend
+FRONTEND_IMAGE=ghcr.io/inoolabs/intric-community-frontend
+
+# WRONG - These don't exist
+# BACKEND_IMAGE=intric-backend
+# BACKEND_IMAGE=intric/backend
+# BACKEND_IMAGE=inoolabs/intric-backend
+```
+
+**Verify images are accessible:**
+```bash
+# Test pulling the images directly
+docker pull ghcr.io/inoolabs/intric-community-backend:latest
+docker pull ghcr.io/inoolabs/intric-community-frontend:latest
+```
+
+**If public images still don't work, build from source:**
+```bash
+# Clone and build
+git clone https://github.com/inooLabs/intric-community.git
+cd intric-community
+docker build -t intric-backend:latest ./backend
+docker build -t intric-frontend:latest ./frontend
+
+# Update .env to use local images
+BACKEND_IMAGE=intric-backend
+FRONTEND_IMAGE=intric-frontend
+```
+
+### Using Your Own Registry
+
+If you want to build and use your own images:
+
+```bash
+# Clone the repository
+git clone https://github.com/inooLabs/intric-community.git
+cd intric-community
+
+# Build images
+docker build -t your-registry.com/intric/backend ./backend
+docker build -t your-registry.com/intric/frontend ./frontend
+
+# Push to your registry
+docker push your-registry.com/intric/backend
+docker push your-registry.com/intric/frontend
+
+# Update .env to use your images
+BACKEND_IMAGE=your-registry.com/intric/backend
+FRONTEND_IMAGE=your-registry.com/intric/frontend
+```
 
 ## Troubleshooting
 

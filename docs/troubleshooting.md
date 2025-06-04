@@ -219,6 +219,101 @@ This guide provides solutions for common issues encountered when deploying, deve
 
 ## Container and Orchestration Issues
 
+### Docker Image Pull Errors
+
+**Symptoms:**
+- `Error response from daemon: pull access denied for intric/backend`
+- `repository does not exist or may require 'docker login'`
+- Containers fail to start with image not found errors
+
+**Solutions:**
+1. Use the correct community images from GitHub Container Registry:
+   ```bash
+   # Update your .env file with correct image names:
+   FRONTEND_IMAGE=ghcr.io/inoolabs/intric-release-frontend
+   BACKEND_IMAGE=ghcr.io/inoolabs/intric-release-backend
+   
+   # These are publicly available - no login required
+   ```
+
+2. Test pulling images manually:
+   ```bash
+   # For Docker
+   docker pull ghcr.io/inoolabs/intric-release-backend:latest
+   docker pull ghcr.io/inoolabs/intric-release-frontend:latest
+   
+   # For Podman
+   podman pull ghcr.io/inoolabs/intric-release-backend:latest
+   podman pull ghcr.io/inoolabs/intric-release-frontend:latest
+   ```
+
+3. If you see `intric/backend` or `intric/frontend` in your configuration:
+   ```bash
+   # Wrong - these images don't exist
+   BACKEND_IMAGE=intric/backend
+   FRONTEND_IMAGE=intric/frontend
+   
+   # Currently also wrong - images are private
+   BACKEND_IMAGE=ghcr.io/inoolabs/intric-release-backend
+   FRONTEND_IMAGE=ghcr.io/inoolabs/intric-release-frontend
+   ```
+
+4. **RECOMMENDED: Build your own images from source:**
+   ```bash
+   git clone https://github.com/inooLabs/intric-community.git
+   cd intric-community
+   docker build -t intric-backend:latest ./backend
+   docker build -t intric-frontend:latest ./frontend
+   
+   # Update your .env to use local images:
+   BACKEND_IMAGE=intric-backend
+   FRONTEND_IMAGE=intric-frontend
+   ```
+
+### GitHub Container Registry Authorization Errors
+
+**Symptoms:**
+- `Error response from daemon: Head "https://ghcr.io/v2/inoolabs/intric-release-backend/manifests/latest": unauthorized`
+- `unauthorized: authentication required`
+
+**Cause:**
+The pre-built community images are currently set to private in the GitHub Container Registry.
+
+**Solutions:**
+1. **Build from source** (recommended):
+   See the instructions above for building your own images.
+
+2. **Authenticate with GitHub** (if you have access):
+   ```bash
+   # Create a Personal Access Token at https://github.com/settings/tokens
+   # Make sure it has 'read:packages' scope
+   
+   # Login to GitHub Container Registry
+   echo YOUR_GITHUB_TOKEN | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
+   
+   # Now try pulling again
+   docker pull ghcr.io/inoolabs/intric-release-backend:latest
+   docker pull ghcr.io/inoolabs/intric-release-frontend:latest
+   
+   # For Podman users:
+   echo YOUR_GITHUB_TOKEN | podman login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
+   ```
+
+3. **Contact InooLabs**:
+   Request that the images be made public or ask for access permissions.
+
+4. **Use Docker Hub or your own registry**:
+   After building, push to your own registry:
+   ```bash
+   # Tag and push to Docker Hub
+   docker tag intric-backend:latest yourusername/intric-backend:latest
+   docker push yourusername/intric-backend:latest
+   
+   # Or to a private registry
+   docker tag intric-backend:latest your-registry.com/intric-backend:latest
+   docker push your-registry.com/intric-backend:latest
+   ```
+
 ### Podman vs Docker Compatibility
 
 **Symptoms:**
