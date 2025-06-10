@@ -78,7 +78,6 @@ Example changes:
    # Choose at least ONE of these:
    OPENAI_API_KEY=sk-your-actual-openai-key-here
    ANTHROPIC_API_KEY=sk-ant-your-actual-claude-key-here
-   GEMINI_API_KEY=your-actual-gemini-key-here
    ```
 
 2. **Replace the security placeholders**:
@@ -218,8 +217,8 @@ For each running container:
 - If you see a certificate warning, wait 2 minutes and refresh
 
 ### 5.2 Login with Default Admin
-- **Email**: `admin@example.com`
-- **Password**: `admin`
+- **Email**: `user@example.com`
+- **Password**: `Password1!`
 
 ### 🚨 SECURITY ALERT: Change This Password NOW!
 
@@ -348,7 +347,7 @@ Your Intric AI platform is now running at your domain!
 - **Container Prefix**: `[your-stack-name]_`
 
 ### Default Logins:
-- **Intric Admin**: admin@example.com / admin (CHANGE THIS!)
+- **Intric Admin**: user@example.com / Password1! (CHANGE THIS!)
 - **Database**: postgres / [your-generated-password]
 
 ### Important URLs:
