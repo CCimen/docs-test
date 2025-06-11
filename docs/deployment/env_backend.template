@@ -1,0 +1,144 @@
+# Backend Environment Configuration for Eneo
+# IMPORTANT: Fill in the required values before deployment
+
+###############
+# AI Model API Keys - Add at least ONE
+###############
+# OpenAI Configuration
+OPENAI_API_KEY=
+
+# Anthropic Claude Configuration  
+ANTHROPIC_API_KEY=
+
+# Google Gemini Configuration
+GEMINI_API_KEY=
+
+# Azure OpenAI Configuration (if using Azure)
+AZURE_API_KEY=
+AZURE_ENDPOINT=
+AZURE_API_VERSION=2024-02-15-preview
+USING_AZURE_MODELS=False
+
+# Additional AI Providers
+MISTRAL_API_KEY=
+OVHCLOUD_API_KEY=
+VLLM_API_KEY=
+VLLM_MODEL_URL=
+
+# Web Search and External Services
+TAVILY_API_KEY=
+INFINITY_URL=
+
+# Admin API Keys
+INTRIC_SUPER_API_KEY=
+INTRIC_SUPER_DUPER_API_KEY=
+
+###############
+# Database Configuration (Internal)
+###############
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=
+POSTGRES_DB=eneo
+
+###############
+# Redis Configuration (Internal)
+###############
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+###############
+# Security Settings - MUST BE CHANGED!
+###############
+# Generate with: openssl rand -hex 32
+JWT_SECRET=
+URL_SIGNING_KEY=
+
+###############
+# API Configuration
+###############
+API_PREFIX=/api/v1
+API_KEY_LENGTH=64
+API_KEY_HEADER_NAME=X-API-Key
+
+###############
+# JWT Configuration
+###############
+JWT_AUDIENCE=*
+JWT_ISSUER=ENEO
+JWT_EXPIRY_TIME=86400
+JWT_ALGORITHM=HS256
+JWT_TOKEN_PREFIX=
+
+###############
+# Upload Limits (in bytes)
+###############
+UPLOAD_MAX_FILE_SIZE=10485760
+UPLOAD_FILE_TO_SESSION_MAX_SIZE=10485760
+UPLOAD_IMAGE_TO_SESSION_MAX_SIZE=10485760
+TRANSCRIPTION_MAX_FILE_SIZE=10485760
+MAX_IN_QUESTION=1
+
+###############
+# Feature Flags
+###############
+USING_ACCESS_MANAGEMENT=True
+USING_IAM=False
+USING_IMAGE_GENERATION=False
+USING_CRAWL=True
+USING_EMBEDDING_MODELS_WITH_USER_GROUPS=True
+
+###############
+# Crawling Configuration
+###############
+CRAWL_MAX_LENGTH=14400
+CLOSESPIDER_ITEMCOUNT=20000
+OBEY_ROBOTS=True
+AUTOTHROTTLE_ENABLED=True
+
+###############
+# Authentication (Optional - for SSO)
+###############
+MOBILITYGUARD_DISCOVERY_ENDPOINT=
+MOBILITYGUARD_CLIENT_ID=
+MOBILITYGUARD_CLIENT_SECRET=
+MOBILITYGUARD_TENANT_ID=
+
+# OAuth Configuration
+OAUTH_CALLBACK_URL=
+
+###############
+# Integration Services (Optional)
+###############
+CONFLUENCE_CLIENT_ID=
+CONFLUENCE_CLIENT_SECRET=
+SHAREPOINT_CLIENT_ID=
+SHAREPOINT_CLIENT_SECRET=
+
+###############
+# Development Settings
+###############
+TESTING=False
+DEV=False
+
+###############
+# Worker Configuration
+###############
+NUM_WORKERS=3
+
+###############
+# Logging
+###############
+LOGLEVEL=INFO
+
+###############
+# Error Tracking (Optional)
+###############
+SENTRY_DSN=
+SENTRY_ENVIRONMENT=production
+
+###############
+# Environment Settings
+###############
+NODE_ENV=production

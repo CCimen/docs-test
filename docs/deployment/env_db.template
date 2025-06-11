@@ -1,0 +1,6 @@
+# Database Environment Configuration
+
+# PostgreSQL Configuration
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=
+POSTGRES_DB=eneo
