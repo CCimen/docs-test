@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/eneo_logo.png" alt="Eneo Logo" width="200"/>
+<img src="docs/assets/eneo_logo.png" alt="Eneo Logo" width="400"/>
 
 # Eneo
 
