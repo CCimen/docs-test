@@ -127,12 +127,28 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 ### 1. Setup Deployment Directory
 
+**Option A: Download deployment files only (Recommended)**
+
+```bash
+# Create deployment directory
+sudo mkdir -p /opt/eneo/deployment
+cd /opt/eneo/deployment
+
+# Download deployment files
+curl -o docker-compose.yml https://raw.githubusercontent.com/sundsvallai/eneo/main/deployment/docker-compose.yml
+curl -o env_backend.template https://raw.githubusercontent.com/sundsvallai/eneo/main/deployment/env_backend.template
+curl -o env_frontend.template https://raw.githubusercontent.com/sundsvallai/eneo/main/deployment/env_frontend.template
+curl -o env_db.template https://raw.githubusercontent.com/sundsvallai/eneo/main/deployment/env_db.template
+```
+
+**Option B: Clone full repository (for customization)**
+
 ```bash
 # Create deployment directory
 sudo mkdir -p /opt/eneo
 cd /opt/eneo
 
-# Clone repository or copy deployment files
+# Clone repository for access to source code and templates
 git clone https://github.com/sundsvallai/eneo.git .
 cd deployment
 ```
@@ -156,137 +172,20 @@ nano env_frontend.env # Configure domain and secrets
 nano env_db.env       # Set database password
 ```
 
-### 3. Configure Docker Compose
+### 3. Update Docker Compose Configuration
 
-Create a production-ready `docker-compose.yml`:
+Edit the downloaded `docker-compose.yml` to configure your domain and email:
 
-```yaml
-services:
-  traefik:
-    image: traefik:v3.0
-    container_name: eneo_traefik
-    restart: unless-stopped
-    command:
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.letsencrypt.acme.email=your-email@domain.com"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "traefik_letsencrypt:/letsencrypt"
-    networks:
-      - proxy_tier
-    labels:
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+```bash
+# Edit docker-compose.yml
+nano docker-compose.yml
 
-  frontend:
-    image: ghcr.io/sundsvallai/eneo-frontend:latest
-    container_name: eneo_frontend
-    restart: unless-stopped
-    env_file:
-      - env_frontend.env
-    networks:
-      - proxy_tier
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.eneo-frontend.rule=Host(`your-domain.com`)"
-      - "traefik.http.routers.eneo-frontend.entrypoints=web"
-      - "traefik.http.routers.eneo-frontend.middlewares=redirect-to-https"
-      - "traefik.http.routers.eneo-frontend-secure.rule=Host(`your-domain.com`)"
-      - "traefik.http.routers.eneo-frontend-secure.entrypoints=websecure"
-      - "traefik.http.routers.eneo-frontend-secure.tls=true"
-      - "traefik.http.routers.eneo-frontend-secure.tls.certresolver=letsencrypt"
-      - "traefik.http.services.eneo-frontend.loadbalancer.server.port=3000"
-    depends_on:
-      - backend
-
-  backend:
-    image: ghcr.io/sundsvallai/eneo-backend:latest
-    container_name: eneo_backend
-    restart: unless-stopped
-    env_file:
-      - env_backend.env
-    volumes:
-      - eneo_backend_data:/app/data
-    networks:
-      - proxy_tier
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.eneo-backend.rule=Host(`your-domain.com`) && (PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/openapi.json`) || PathPrefix(`/version`))"
-      - "traefik.http.routers.eneo-backend.entrypoints=web"
-      - "traefik.http.routers.eneo-backend.middlewares=redirect-to-https"
-      - "traefik.http.routers.eneo-backend-secure.rule=Host(`your-domain.com`) && (PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/openapi.json`) || PathPrefix(`/version`))"
-      - "traefik.http.routers.eneo-backend-secure.entrypoints=websecure"
-      - "traefik.http.routers.eneo-backend-secure.tls=true"
-      - "traefik.http.routers.eneo-backend-secure.tls.certresolver=letsencrypt"
-      - "traefik.http.services.eneo-backend.loadbalancer.server.port=8000"
-    depends_on:
-      - db
-      - redis
-      - db-init
-
-  worker:
-    image: ghcr.io/sundsvallai/eneo-backend:latest
-    container_name: eneo_worker
-    restart: unless-stopped
-    command: ["poetry", "run", "arq", "src.intric.worker.arq.WorkerSettings"]
-    env_file:
-      - env_backend.env
-    volumes:
-      - eneo_backend_data:/app/data
-    networks:
-      - proxy_tier
-    depends_on:
-      - backend
-
-  db:
-    image: pgvector/pgvector:pg16
-    container_name: eneo_db
-    restart: unless-stopped
-    env_file:
-      - env_db.env
-    volumes:
-      - eneo_postgres_data:/var/lib/postgresql/data
-    networks:
-      - proxy_tier
-
-  redis:
-    image: redis:7-alpine
-    container_name: eneo_redis
-    restart: unless-stopped
-    volumes:
-      - eneo_redis_data:/data
-    networks:
-      - proxy_tier
-
-  db-init:
-    image: ghcr.io/sundsvallai/eneo-backend:latest
-    container_name: eneo_db_init
-    command: ["python", "init_db.py"]
-    env_file:
-      - env_backend.env
-    networks:
-      - proxy_tier
-    depends_on:
-      - db
-
-networks:
-  proxy_tier:
-    external: true
-
-volumes:
-  eneo_postgres_data:
-  eneo_redis_data:
-  eneo_backend_data:
-  traefik_letsencrypt:
+# Update these values:
+# - Line 16: your-email@domain.com (for Let's Encrypt)
+# - Line 39: your-domain.com (your actual domain)
+# - Line 42: your-domain.com (your actual domain)  
+# - Line 67: your-domain.com (your actual domain)
+# - Line 67: your-domain.com (your actual domain)
 ```
 
 ### 4. Deploy

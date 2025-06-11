@@ -173,7 +173,8 @@ domain_name/
 
 ## 🖥️ Frontend Architecture
 
-### SvelteKit Application Structure
+<details>
+<summary>🔍 Click to view SvelteKit application structure</summary>
 
 ```mermaid
 graph LR
@@ -209,6 +210,8 @@ graph LR
     SERVICES --> PAGES
     I18N --> PAGES
 ```
+
+</details>
 
 ### Key Frontend Technologies
 
@@ -482,95 +485,23 @@ sequenceDiagram
 
 ---
 
-## 🔌 AI Integration Architecture
+## 🔌 AI Integration
 
-### AI Provider Abstraction
+### Multi-Provider Architecture
 
-<details>
-<summary>🤖 Click to view AI integration architecture</summary>
+Eneo supports multiple AI providers through a unified interface, allowing organizations to choose providers based on their needs, compliance requirements, and budget.
 
-```mermaid
-graph TB
-    subgraph "Client Layer"
-        CHAT[Chat Interface]
-        ASSISTANT[Assistant Config]
-    end
-    
-    subgraph "Application Layer"
-        COMPLETION[Completion Service]
-        MODEL_MGR[Model Manager]
-        PROMPT_MGR[Prompt Manager]
-    end
-    
-    subgraph "Abstraction Layer"
-        PROVIDER_FACTORY[Provider Factory]
-        BASE_CLIENT[Base AI Client]
-        RESPONSE_PARSER[Response Parser]
-    end
-    
-    subgraph "Provider Implementations"
-        OPENAI_CLIENT[OpenAI Client]
-        ANTHROPIC_CLIENT[Anthropic Client]
-        AZURE_CLIENT[Azure Client]
-        LOCAL_CLIENT[Local Model Client]
-    end
-    
-    subgraph "External APIs"
-        OPENAI_API[OpenAI API]
-        ANTHROPIC_API[Anthropic API]
-        AZURE_API[Azure OpenAI API]
-        LOCAL_API[Local Model API]
-    end
-    
-    CHAT --> COMPLETION
-    ASSISTANT --> MODEL_MGR
-    ASSISTANT --> PROMPT_MGR
-    
-    COMPLETION --> PROVIDER_FACTORY
-    MODEL_MGR --> PROVIDER_FACTORY
-    PROMPT_MGR --> BASE_CLIENT
-    
-    PROVIDER_FACTORY --> OPENAI_CLIENT
-    PROVIDER_FACTORY --> ANTHROPIC_CLIENT
-    PROVIDER_FACTORY --> AZURE_CLIENT
-    PROVIDER_FACTORY --> LOCAL_CLIENT
-    
-    BASE_CLIENT --> RESPONSE_PARSER
-    
-    OPENAI_CLIENT --> OPENAI_API
-    ANTHROPIC_CLIENT --> ANTHROPIC_API
-    AZURE_CLIENT --> AZURE_API
-    LOCAL_CLIENT --> LOCAL_API
-    
-    style COMPLETION fill:#e8f5e8
-    style PROVIDER_FACTORY fill:#f3e5f5
-    style OPENAI_CLIENT fill:#fff3e0
-    style ANTHROPIC_CLIENT fill:#fff3e0
-    style AZURE_CLIENT fill:#fff3e0
-    style LOCAL_CLIENT fill:#fff3e0
-```
+**Supported Providers:**
+- **OpenAI**: GPT models for general-purpose AI
+- **Anthropic**: Claude models for advanced reasoning
+- **Azure OpenAI**: Enterprise-grade OpenAI models
+- **Local Models**: Self-hosted models for data sovereignty
 
-</details>
-
-### AI Integration Features
-
-**Multi-Provider Support:**
-- Unified interface for all AI providers
-- Runtime provider switching
-- Provider-specific optimizations
-- Fallback and retry mechanisms
-
-**Model Management:**
-- Database-driven model configuration
-- Dynamic model loading
-- Cost and performance tracking
-- Usage analytics and monitoring
-
-**Context Management:**
-- Conversation history handling
-- System prompt management
-- Context window optimization
-- Memory management strategies
+**Key Features:**
+- **Provider Switching**: Change AI providers without code changes
+- **Cost Optimization**: Automatic model selection based on cost/performance
+- **Fallback Support**: Automatic failover if primary provider is unavailable
+- **Usage Tracking**: Monitor costs and performance across providers
 
 ---
 
@@ -578,241 +509,75 @@ graph TB
 
 ### ARQ Task System
 
-<details>
-<summary>⚙️ Click to view background task architecture</summary>
+Eneo uses ARQ (Async Redis Queue) for handling time-intensive operations that shouldn't block user interactions.
 
-```mermaid
-graph LR
-    subgraph "Task Producers"
-        API[API Endpoints]
-        SCHEDULER[Scheduled Tasks]
-        WEBHOOK[Webhooks]
-    end
-    
-    subgraph "Queue System"
-        REDIS_QUEUE[(Redis Queue)]
-        TASK_ROUTER[Task Router]
-        PRIORITY[Priority Queues]
-    end
-    
-    subgraph "Workers"
-        WORKER1[Worker 1<br/>File Processing]
-        WORKER2[Worker 2<br/>AI Tasks]
-        WORKER3[Worker 3<br/>Web Crawling]
-        WORKER_N[Worker N<br/>General Tasks]
-    end
-    
-    subgraph "Task Types"
-        FILE_TASKS[File Processing<br/>• Document parsing<br/>• Image processing<br/>• Audio transcription]
-        AI_TASKS[AI Processing<br/>• Embeddings generation<br/>• Content analysis<br/>• Batch completions]
-        CRAWL_TASKS[Web Crawling<br/>• Website crawling<br/>• Content extraction<br/>• Sitemap processing]
-        MAINTENANCE[Maintenance<br/>• Data cleanup<br/>• Cache warming<br/>• Analytics]
-    end
-    
-    API --> REDIS_QUEUE
-    SCHEDULER --> REDIS_QUEUE
-    WEBHOOK --> REDIS_QUEUE
-    
-    REDIS_QUEUE --> TASK_ROUTER
-    TASK_ROUTER --> PRIORITY
-    
-    PRIORITY --> WORKER1
-    PRIORITY --> WORKER2
-    PRIORITY --> WORKER3
-    PRIORITY --> WORKER_N
-    
-    WORKER1 --> FILE_TASKS
-    WORKER2 --> AI_TASKS
-    WORKER3 --> CRAWL_TASKS
-    WORKER_N --> MAINTENANCE
-```
+**Common Background Tasks:**
+- **File Processing**: Document parsing, image analysis, audio transcription
+- **AI Operations**: Embedding generation, batch completions
+- **Web Crawling**: Website content extraction and indexing
+- **Maintenance**: Database optimization, cache management
 
-</details>
-
-### Task Categories
-
-**File Processing Tasks:**
-- Document parsing and chunking
-- Image processing and analysis
-- Audio transcription
-- Vector embedding generation
-
-**AI Processing Tasks:**
-- Batch AI completions
-- Content summarization
-- Semantic analysis
-- Model fine-tuning preparation
-
-**Web Crawling Tasks:**
-- Website content extraction
-- Sitemap processing
-- Link discovery and validation
-- Content updates and monitoring
-
-**System Maintenance:**
-- Database cleanup and optimization
-- Cache warming and invalidation
-- Analytics data processing
-- Security audits and checks
+**Benefits:**
+- **Non-blocking**: Users get immediate responses while processing happens in background
+- **Scalable**: Add more worker containers as workload increases
+- **Reliable**: Tasks are persisted in Redis and retried on failure
+- **Prioritized**: Critical tasks processed before routine maintenance
 
 ---
 
-## 🔒 Security Architecture
+## 🔒 Security
 
-### Multi-Layer Security
+### Security by Design
 
-<details>
-<summary>🛡️ Click to view security architecture</summary>
+Eneo implements security at every layer to protect sensitive public sector data and ensure compliance with European regulations.
 
-```mermaid
-graph TB
-    subgraph "Perimeter Security"
-        WAF[Web Application Firewall]
-        DDoS[DDoS Protection]
-        RATE_LIMIT[Rate Limiting]
-    end
-    
-    subgraph "Application Security"
-        AUTH[Authentication Layer]
-        AUTHZ[Authorization Layer]
-        JWT[JWT Token Management]
-        API_KEYS[API Key Management]
-    end
-    
-    subgraph "Data Security"
-        ENCRYPTION[Data Encryption]
-        PII[PII Protection]
-        AUDIT[Audit Logging]
-        BACKUP[Secure Backups]
-    end
-    
-    subgraph "Infrastructure Security"
-        TLS[TLS/SSL Termination]
-        SECRETS[Secret Management]
-        NETWORK[Network Isolation]
-        MONITORING[Security Monitoring]
-    end
-    
-    subgraph "Compliance"
-        GDPR[GDPR Compliance]
-        AI_ACT[EU AI Act]
-        AUDIT_TRAIL[Audit Trails]
-        DATA_RETENTION[Data Retention]
-    end
-    
-    WAF --> AUTH
-    DDoS --> AUTH
-    RATE_LIMIT --> AUTH
-    
-    AUTH --> AUTHZ
-    AUTHZ --> JWT
-    JWT --> API_KEYS
-    
-    ENCRYPTION --> PII
-    PII --> AUDIT
-    AUDIT --> BACKUP
-    
-    TLS --> SECRETS
-    SECRETS --> NETWORK
-    NETWORK --> MONITORING
-    
-    GDPR --> AI_ACT
-    AI_ACT --> AUDIT_TRAIL
-    AUDIT_TRAIL --> DATA_RETENTION
-    
-    style AUTH fill:#fce4ec
-    style ENCRYPTION fill:#e8f5e8
-    style GDPR fill:#fff3e0
-    style TLS fill:#e1f5fe
-```
-
-</details>
-
-### Security Features
-
-**Authentication & Authorization:**
-- JWT-based authentication with secure token management
-- Role-based access control (RBAC) with granular permissions
-- API key authentication for service integration
-- Multi-factor authentication support
+**Authentication & Access Control:**
+- **JWT Authentication**: Secure token-based sessions
+- **Role-Based Access**: Granular permissions by user role
+- **Multi-Tenancy**: Complete data isolation between organizations
+- **API Keys**: Secure service-to-service authentication
 
 **Data Protection:**
-- AES-256 encryption for sensitive data at rest
-- TLS 1.3 for data in transit
-- PII detection and masking
-- Secure password hashing with bcrypt
+- **Encryption**: AES-256 for data at rest, TLS 1.3 in transit
+- **Password Security**: Bcrypt hashing with secure salts
+- **Audit Trails**: All actions logged for compliance
+- **Data Retention**: Automatic deletion per policy
 
-**Compliance:**
-- GDPR compliance with data subject rights
-- EU AI Act readiness with transparency features
-- Comprehensive audit logging
-- Data retention policy enforcement
+**Compliance Ready:**
+- **GDPR**: Built-in data subject rights and privacy controls
+- **EU AI Act**: Transparency and accountability features
+- **Public Sector**: Designed for government security requirements
 
 ---
+
+<details>
+<summary>📊 Click to view monitoring and observability</summary>
 
 ## 📊 Monitoring and Observability
 
-### Observability Stack
+### Built-in Monitoring
 
-```mermaid
-graph LR
-    subgraph "Data Collection"
-        LOGS[Application Logs]
-        METRICS[System Metrics]
-        TRACES[Request Traces]
-        EVENTS[Business Events]
-    end
-    
-    subgraph "Processing"
-        LOG_PROC[Log Processing]
-        METRIC_PROC[Metric Aggregation]
-        TRACE_PROC[Trace Correlation]
-        EVENT_PROC[Event Analysis]
-    end
-    
-    subgraph "Storage"
-        LOG_STORE[(Log Storage)]
-        METRIC_STORE[(Metrics DB)]
-        TRACE_STORE[(Trace Storage)]
-        EVENT_STORE[(Event Store)]
-    end
-    
-    subgraph "Visualization"
-        DASHBOARDS[System Dashboards]
-        ALERTS[Alert Management]
-        REPORTS[Business Reports]
-        ANALYTICS[Usage Analytics]
-    end
-    
-    LOGS --> LOG_PROC --> LOG_STORE --> DASHBOARDS
-    METRICS --> METRIC_PROC --> METRIC_STORE --> DASHBOARDS
-    TRACES --> TRACE_PROC --> TRACE_STORE --> ALERTS
-    EVENTS --> EVENT_PROC --> EVENT_STORE --> REPORTS
-    
-    DASHBOARDS --> ANALYTICS
-    ALERTS --> ANALYTICS
-    REPORTS --> ANALYTICS
-```
+Eneo includes comprehensive monitoring capabilities for production deployments.
 
-### Monitoring Capabilities
+**System Health:**
+- Container resource usage and performance
+- Database query performance and connection health
+- Background task queue status and processing times
+- API response times and error rates
 
-**System Monitoring:**
-- Application performance metrics
-- Resource utilization tracking
-- Database query performance
-- Background task monitoring
-
-**Business Monitoring:**
-- User engagement analytics
-- AI usage patterns
-- Cost optimization metrics
-- Feature adoption tracking
+**Business Intelligence:**
+- User engagement and feature adoption
+- AI model usage patterns and costs
+- Document processing statistics
+- Space collaboration metrics
 
 **Security Monitoring:**
-- Authentication attempt tracking
-- Authorization failure alerts
-- Suspicious activity detection
-- Compliance violation monitoring
+- Authentication failures and suspicious login attempts
+- API rate limiting and abuse detection
+- Data access patterns and compliance audits
+- System resource anomalies
+
+</details>
 
 ---
 
@@ -902,7 +667,6 @@ graph TB
 - Health checks and restart policies
 
 **Enterprise:**
-- Kubernetes orchestration for high availability
 - Podman for RHEL/enterprise environments
 - SystemD integration for service management
 - Advanced monitoring and logging
@@ -944,68 +708,6 @@ graph TB
 - Response caching for similar queries
 - Provider failover and retry logic
 - Cost optimization through model selection
-
----
-
-## 🔧 Development Patterns
-
-### Code Organization
-
-**Backend Patterns:**
-```python
-# Domain entity example
-@dataclass
-class Assistant:
-    id: UUID
-    space_id: UUID
-    name: str
-    description: str
-    system_prompt: str
-    completion_model_id: UUID
-    
-    def update_configuration(self, config: AssistantConfig) -> None:
-        # Domain logic here
-        pass
-
-# Repository pattern
-class AssistantRepository(Protocol):
-    async def find_by_id(self, id: UUID) -> Optional[Assistant]:
-        ...
-    async def save(self, assistant: Assistant) -> None:
-        ...
-
-# Service layer
-class AssistantService:
-    def __init__(self, repo: AssistantRepository):
-        self._repo = repo
-    
-    async def create_assistant(self, request: CreateAssistantRequest) -> Assistant:
-        # Business logic here
-        pass
-```
-
-**Frontend Patterns:**
-```typescript
-// Svelte store pattern
-export const assistantStore = writable<Assistant[]>([]);
-
-// Service pattern
-class AssistantService {
-    async createAssistant(data: CreateAssistantRequest): Promise<Assistant> {
-        return await apiClient.post('/assistants', data);
-    }
-}
-
-// Component composition
-<script lang="ts">
-    import { assistantStore } from '$lib/stores/assistant';
-    import AssistantCard from '$lib/components/AssistantCard.svelte';
-</script>
-
-{#each $assistantStore as assistant}
-    <AssistantCard {assistant} />
-{/each}
-```
 
 ---
 

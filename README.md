@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/eneo_logga.png" alt="Eneo Logo" width="300"/>
+<img src="docs/assets/eneo_logo.png" alt="Eneo Logo" width="200"/>
 
 # Eneo
 
@@ -69,20 +69,26 @@ Eneo is an open-source AI platform specifically designed for Swedish public sect
 - Docker and Docker Compose
 - At least one AI provider API key (OpenAI, Anthropic, etc.)
 
-### 1. Clone and Setup
+### 1. Download Deployment Files
 
 ```bash
-git clone https://github.com/sundsvallai/eneo.git
-cd eneo
+# Create directory and download only what you need
+mkdir eneo-deployment && cd eneo-deployment
+
+# Download pre-configured deployment files
+curl -o docker-compose.yml https://raw.githubusercontent.com/sundsvallai/eneo/main/deployment/docker-compose.yml
+curl -o env_backend.template https://raw.githubusercontent.com/sundsvallai/eneo/main/deployment/env_backend.template
+curl -o env_frontend.template https://raw.githubusercontent.com/sundsvallai/eneo/main/deployment/env_frontend.template
+curl -o env_db.template https://raw.githubusercontent.com/sundsvallai/eneo/main/deployment/env_db.template
 ```
 
 ### 2. Configure Environment
 
 ```bash
 # Copy environment templates
-cp deployment/env_backend.template deployment/env_backend.env
-cp deployment/env_frontend.template deployment/env_frontend.env
-cp deployment/env_db.template deployment/env_db.env
+cp env_backend.template env_backend.env
+cp env_frontend.template env_frontend.env
+cp env_db.template env_db.env
 
 # Edit environment files with your configuration
 # REQUIRED: Add at least one AI provider API key
@@ -92,7 +98,7 @@ cp deployment/env_db.template deployment/env_db.env
 ### 3. Deploy
 
 ```bash
-cd deployment
+# Start services with pre-built images
 docker network create proxy_tier
 docker compose up -d
 ```
