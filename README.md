@@ -131,59 +131,7 @@ Eneo follows a modern microservices architecture with clean separation of concer
 
 <details>
 <summary>🔍 Click to view architecture diagram</summary>
-
-```mermaid
-graph TB
-    subgraph "External Access"
-        U[Users/Citizens]
-        API[External APIs]
-    end
-    
-    subgraph "Reverse Proxy Layer"
-        T[Traefik<br/>SSL Termination<br/>Load Balancing]
-    end
-    
-    subgraph "Application Layer"
-        FE[SvelteKit Frontend<br/>Port 3000]
-        BE[FastAPI Backend<br/>Port 8000]
-        W[ARQ Workers<br/>Background Tasks]
-    end
-    
-    subgraph "Data Layer"
-        DB[(PostgreSQL<br/>+ pgvector)]
-        R[(Redis<br/>Cache/Queue)]
-        FS[File Storage<br/>Local/Cloud]
-    end
-    
-    subgraph "AI Providers"
-        OAI[OpenAI]
-        ANT[Anthropic]
-        AZ[Azure OpenAI]
-        LOC[Local Models]
-    end
-    
-    U --> T
-    API --> T
-    T --> FE
-    T --> BE
-    FE --> BE
-    BE --> DB
-    BE --> R
-    BE --> FS
-    W --> R
-    W --> DB
-    W --> FS
-    BE --> OAI
-    BE --> ANT
-    BE --> AZ
-    BE --> LOC
-    
-    style T fill:#e1f5fe
-    style FE fill:#f3e5f5
-    style BE fill:#e8f5e8
-    style W fill:#fff3e0
-    style DB fill:#fce4ec
-    style R fill:#f1f8e9
+<img src="docs/assets/arkitektur_eneo.png" alt="Eneo Logo" width=800"/>
 ```
 
 </details>
