@@ -135,10 +135,10 @@ sudo mkdir -p /opt/eneo/deployment
 cd /opt/eneo/deployment
 
 # Download deployment files
-curl -o docker-compose.yml https://raw.githubusercontent.com/sundsvallai/eneo/main/deployment/docker-compose.yml
-curl -o env_backend.template https://raw.githubusercontent.com/sundsvallai/eneo/main/deployment/env_backend.template
-curl -o env_frontend.template https://raw.githubusercontent.com/sundsvallai/eneo/main/deployment/env_frontend.template
-curl -o env_db.template https://raw.githubusercontent.com/sundsvallai/eneo/main/deployment/env_db.template
+curl -o docker-compose.yml https://raw.githubusercontent.com/sundsvallai/eneo/main/docs/deployment/docker-compose.yml
+curl -o env_backend.template https://raw.githubusercontent.com/sundsvallai/eneo/main/docs/deployment/env_backend.template
+curl -o env_frontend.template https://raw.githubusercontent.com/sundsvallai/eneo/main/docs/deployment/env_frontend.template
+curl -o env_db.template https://raw.githubusercontent.com/sundsvallai/eneo/main/docs/deployment/env_db.template
 ```
 
 **Option B: Clone full repository (for customization)**
@@ -150,7 +150,7 @@ cd /opt/eneo
 
 # Clone repository for access to source code and templates
 git clone https://github.com/sundsvallai/eneo.git .
-cd deployment
+cd docs/deployment
 ```
 
 ### 2. Configure Environment
@@ -172,20 +172,23 @@ nano env_frontend.env # Configure domain and secrets
 nano env_db.env       # Set database password
 ```
 
+> ⚠️ **Critical Security Steps**:
+> - **JWT_SECRET**: Must be unique and match in both backend and frontend
+> - **Database Password**: Use a strong, unique password
+> - **API Keys**: Keep secure and never commit to version control
+> - **Default Credentials**: Change immediately after first login
+
 ### 3. Update Docker Compose Configuration
 
-Edit the downloaded `docker-compose.yml` to configure your domain and email:
+Edit `docker-compose.yml` to configure your domain and email:
 
 ```bash
 # Edit docker-compose.yml
 nano docker-compose.yml
 
-# Update these values:
-# - Line 16: your-email@domain.com (for Let's Encrypt)
-# - Line 39: your-domain.com (your actual domain)
-# - Line 42: your-domain.com (your actual domain)  
-# - Line 67: your-domain.com (your actual domain)
-# - Line 67: your-domain.com (your actual domain)
+# Find and replace these values (marked with "CHANGE THIS"):
+# 1. your-email@domain.com → your actual email (for SSL certificates)
+# 2. your-domain.com → your actual domain (appears 4 times)
 ```
 
 ### 4. Deploy
@@ -206,130 +209,42 @@ docker compose logs -f
 
 ## ⚙️ Environment Configuration
 
-### Backend Environment (`env_backend.env`)
+### Minimal Configuration Example
 
-<details>
-<summary>📋 Complete backend environment configuration</summary>
+Here's a minimal working configuration. For all available options, see the template files.
 
+**Backend (`env_backend.env`):**
 ```bash
-###############
-# AI Model API Keys - Add at least one
-###############
-OPENAI_API_KEY=sk-proj-...
-ANTHROPIC_API_KEY=sk-ant-...
-GEMINI_API_KEY=...
-AZURE_API_KEY=...
-AZURE_ENDPOINT=https://your-resource.openai.azure.com/
-AZURE_API_VERSION=2024-02-15-preview
-AZURE_MODEL_DEPLOYMENT=gpt-4
+# Required: Add at least one AI provider
+OPENAI_API_KEY=sk-proj-your-actual-key
 
-###############
-# Database Configuration
-###############
+# Required: Security (generate with: openssl rand -hex 32)
+JWT_SECRET=your-generated-64-character-hex-secret
+URL_SIGNING_KEY=your-generated-64-character-hex-secret
+
+# Database (defaults for Docker Compose)
 POSTGRES_HOST=db
-POSTGRES_PORT=5432
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=your-secure-db-password
-POSTGRES_DB=eneo
+POSTGRES_PASSWORD=your-secure-password
 
-###############
-# Redis Configuration
-###############
-REDIS_HOST=redis
-REDIS_PORT=6379
-
-###############
-# Security Settings - CRITICAL
-###############
-JWT_SECRET=your-64-character-hex-secret
-URL_SIGNING_KEY=your-64-character-hex-secret
-
-# Generate with: openssl rand -hex 32
-
-###############
-# API Configuration
-###############
-API_PREFIX=/api/v1
-API_KEY_LENGTH=64
-API_KEY_HEADER_NAME=X-API-Key
-JWT_AUDIENCE=*
-JWT_ISSUER=ENEO
-JWT_EXPIRY_TIME=86400
-JWT_ALGORITHM=HS256
-
-###############
-# Upload Limits (bytes)
-###############
-UPLOAD_MAX_FILE_SIZE=10485760          # 10MB
-UPLOAD_FILE_TO_SESSION_MAX_SIZE=10485760
-UPLOAD_IMAGE_TO_SESSION_MAX_SIZE=10485760
-TRANSCRIPTION_MAX_FILE_SIZE=10485760
-MAX_IN_QUESTION=1
-
-###############
-# Feature Flags
-###############
-USING_ACCESS_MANAGEMENT=True
-USING_AZURE_MODELS=False
-USING_CRAWL=True
-USING_EMBEDDING_MODELS_WITH_USER_GROUPS=True
-
-###############
-# Logging
-###############
-LOGLEVEL=INFO
-SENTRY_DSN=                            # Optional: Error tracking
-SENTRY_ENVIRONMENT=production
-
-###############
-# Admin API Keys (Optional)
-###############
-INTRIC_SUPER_API_KEY=your-super-api-key
-INTRIC_SUPER_DUPER_API_KEY=your-super-duper-api-key
+# Everything else uses secure defaults from the template
 ```
 
-</details>
-
-### Frontend Environment (`env_frontend.env`)
-
+**Frontend (`env_frontend.env`):**
 ```bash
-###############
-# Public URL Configuration
-###############
+# Required: Your domain
 ORIGIN=https://your-domain.com
 INTRIC_BACKEND_URL=https://your-domain.com
-INTRIC_BACKEND_SERVER_URL=http://backend:8000
 
-###############
-# Security - Must match backend
-###############
-JWT_SECRET=your-64-character-hex-secret
+# Required: Must match backend JWT_SECRET exactly
+JWT_SECRET=your-generated-64-character-hex-secret
 
-###############
-# Feature Flags
-###############
-SHOW_TEMPLATES=true
-SHOW_WEB_SEARCH=true
-
-###############
-# Optional Features
-###############
-MOBILITY_GUARD_AUTH=                   # SSO endpoint (optional)
-FEEDBACK_FORM_URL=                     # Feedback form (optional)
-
-###############
-# Environment Settings
-###############
-NODE_ENV=production
-LOGLEVEL=INFO
+# Defaults are fine for everything else
 ```
 
-### Database Environment (`env_db.env`)
-
+**Database (`env_db.env`):**
 ```bash
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=your-secure-db-password
-POSTGRES_DB=eneo
+POSTGRES_PASSWORD=your-secure-password
+# Other values use secure defaults
 ```
 
 ---

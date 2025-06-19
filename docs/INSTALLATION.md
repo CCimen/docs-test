@@ -2,6 +2,8 @@
 
 This guide covers setting up Eneo for development and testing. For production deployment, see the [Deployment Guide](DEPLOYMENT.md).
 
+> 📌 **Port Usage**: Development runs on port **8123**, while production uses port **8000**. This guide uses development ports.
+
 ---
 
 ## 🎯 Quick Overview
@@ -45,10 +47,11 @@ This guide covers setting up Eneo for development and testing. For production de
 4. **Configure Environment**
    ```bash
    # In VS Code terminal
-   cp backend/.env.template backend/.env
+   cp backend/env_template backend/.env
    cp frontend/apps/web/.env.example frontend/apps/web/.env
    
    # Edit .env files with your configuration
+   # Minimum: Add at least one AI provider API key
    ```
 
 5. **Initialize Database**
@@ -142,8 +145,8 @@ cd backend
 poetry install
 
 # Copy and configure environment
-cp .env.template .env
-# Edit .env with your settings
+cp env_template .env
+# Edit .env with your settings (see env_template for all options)
 
 # Start infrastructure services
 docker compose up -d
@@ -187,53 +190,23 @@ poetry run arq src.intric.worker.arq.WorkerSettings
 
 ## ⚙️ Environment Configuration
 
-### Required Configuration
+### Minimal Development Configuration
 
-#### Backend Environment (`.env`)
+The template files contain all options. Here's the minimum needed to start:
 
+#### Backend (`backend/.env`):
 ```bash
-# Database (using Docker Compose defaults)
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_DB=postgres
+# Add at least one AI provider
+OPENAI_API_KEY=sk-proj-your-key-here
 
-# Redis (using Docker Compose defaults)
-REDIS_HOST=localhost
-REDIS_PORT=6379
-
-# Security (REQUIRED)
-JWT_SECRET=your-secure-secret-key  # Generate with: openssl rand -hex 32
-JWT_AUDIENCE=eneo
-JWT_ISSUER=eneo
-
-# AI Providers (at least one required)
-OPENAI_API_KEY=sk-...              # OpenAI API key
-ANTHROPIC_API_KEY=sk-ant-...       # Anthropic API key
-AZURE_API_KEY=...                  # Azure OpenAI key
-GEMINI_API_KEY=...                 # Google Gemini key
-
-# Feature Flags
-USING_ACCESS_MANAGEMENT=True
-USING_CRAWL=True
-LOGLEVEL=DEBUG
+# For development, defaults from env_template work for everything else
+# See backend/env_template for all available options
 ```
 
-#### Frontend Environment (`.env`)
-
+#### Frontend (`frontend/apps/web/.env`):
 ```bash
-# Backend Connection (development)
-INTRIC_BACKEND_URL=http://localhost:8123
-INTRIC_BACKEND_SERVER_URL=http://localhost:8123
-
-# Security (must match backend)
-JWT_SECRET=your-secure-secret-key
-
-# Development Settings
-PUBLIC_URL=http://localhost:3000
-SHOW_TEMPLATES=true
-SHOW_WEB_SEARCH=true
+# Already configured for development in .env.example
+# Just copy it as-is: cp .env.example .env
 ```
 
 ### AI Provider Setup

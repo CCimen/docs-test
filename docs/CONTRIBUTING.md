@@ -67,6 +67,72 @@ git push origin feature/your-feature-name
 
 ---
 
+## 📏 Contribution Standards and Requirements
+
+All contributions must align with Eneo's mission to provide democratic AI for the public sector. Review these requirements before submitting a PR.
+
+### Generic Functionality Requirement
+
+PRs must introduce generic functions useful for all platform users.
+
+**Focus on:**
+- Solving common problems across organizations
+- Features that benefit the entire user base
+- Improvements to core platform capabilities
+
+**Avoid:**
+- Municipality-specific features
+- Company-specific integrations
+- Custom workflows for individual organizations
+
+### Design System Compliance
+
+All UI contributions must follow Eneo's established design system.
+
+**Requirements:**
+- Use existing components and patterns
+- Maintain consistent color scheme, typography, and spacing
+- Follow the component library guidelines
+- No custom styling that deviates from platform standards
+
+> 📐 **Note**: A comprehensive design system in Figma is coming soon. Until then, follow existing UI patterns in the codebase and use the established component library.
+
+### Platform Integrity
+
+No PR may compromise existing functionality.
+
+**Testing Requirements:**
+- Include comprehensive unit tests (≥80% coverage)
+- Add integration tests for new features
+- Test for regressions in related features
+- Verify no breaking changes to existing APIs
+
+### Examples of Acceptable vs Unacceptable Contributions
+
+**✅ Good Contributions:**
+- "Add support for Gemini AI models" - Benefits all users
+- "Improve vector search performance" - Universal improvement
+- "Add accessibility features for screen readers" - Platform-wide enhancement
+- "Implement batch processing for documents" - General capability
+
+**❌ Unacceptable Contributions:**
+- "Add custom branding for Municipality X" - Too specific
+- "Implement Company Y's approval workflow" - Organization-specific
+- "Change color scheme to match our brand" - Violates design system
+- "Add hard-coded integration with our internal system" - Not generic
+
+### Submission Checklist
+
+Before submitting your PR, ensure:
+- [ ] Feature is generic and benefits all users
+- [ ] UI follows existing design patterns
+- [ ] All tests pass with adequate coverage
+- [ ] No breaking changes introduced
+- [ ] Documentation updated accordingly
+- [ ] PR description clearly explains the universal benefit
+
+---
+
 ## 🏗️ Understanding the Architecture
 
 Eneo follows **Domain-Driven Design** with clear separation of concerns. Understanding this architecture is essential for effective contributions.

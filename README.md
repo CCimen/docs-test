@@ -76,10 +76,10 @@ Eneo is an open-source AI platform specifically designed for Swedish public sect
 mkdir eneo-deployment && cd eneo-deployment
 
 # Download pre-configured deployment files
-curl -o docker-compose.yml https://raw.githubusercontent.com/sundsvallai/eneo/main/deployment/docker-compose.yml
-curl -o env_backend.template https://raw.githubusercontent.com/sundsvallai/eneo/main/deployment/env_backend.template
-curl -o env_frontend.template https://raw.githubusercontent.com/sundsvallai/eneo/main/deployment/env_frontend.template
-curl -o env_db.template https://raw.githubusercontent.com/sundsvallai/eneo/main/deployment/env_db.template
+curl -o docker-compose.yml https://raw.githubusercontent.com/sundsvallai/eneo/main/docs/deployment/docker-compose.yml
+curl -o env_backend.template https://raw.githubusercontent.com/sundsvallai/eneo/main/docs/deployment/env_backend.template
+curl -o env_frontend.template https://raw.githubusercontent.com/sundsvallai/eneo/main/docs/deployment/env_frontend.template
+curl -o env_db.template https://raw.githubusercontent.com/sundsvallai/eneo/main/docs/deployment/env_db.template
 ```
 
 ### 2. Configure Environment
@@ -94,6 +94,11 @@ cp env_db.template env_db.env
 # REQUIRED: Add at least one AI provider API key
 # REQUIRED: Set secure JWT_SECRET (generate with: openssl rand -hex 32)
 ```
+
+> ⚠️ **Security Warning**: 
+> - Generate a unique JWT_SECRET for production: `openssl rand -hex 32`
+> - Change all default passwords immediately
+> - Never commit .env files to version control
 
 ### 3. Deploy
 
@@ -123,6 +128,12 @@ docker compose up -d
 <p><em>Collaborative spaces for team-based AI development and deployment</em></p>
 </div>
 
+### 🔧 Development Setup
+
+For developers who want to contribute to Eneo:
+- **Recommended**: Use VS Code DevContainer for a pre-configured environment
+- **See**: [DevContainer Setup Guide](docs/INSTALLATION.md#-devcontainer-setup-recommended)
+
 ---
 
 ## 🏗️ Architecture
@@ -131,8 +142,7 @@ Eneo follows a modern microservices architecture with clean separation of concer
 
 <details>
 <summary>🔍 Click to view architecture diagram</summary>
-<img src="docs/assets/arkitektur_eneo.png" alt="Eneo Logo" width=800"/>
-```
+<img src="docs/assets/eneo_architecture.png" alt="Eneo Architecture Diagram" width=800/>
 
 </details>
 
@@ -170,11 +180,13 @@ Eneo follows a modern microservices architecture with clean separation of concer
 
 Eneo is developed by the Swedish public sector for the global community. Contributions are welcome from municipalities, organizations, and individuals who share our vision of democratic AI.
 
+> 📋 **Important**: Before contributing, review our [Contribution Standards](docs/CONTRIBUTING.md#-contribution-standards-and-requirements) to ensure your PR aligns with platform goals.
+
 ### Quick Contribution Guide
 
 1. **Fork** the repository
 2. **Create** a feature branch
-3. **Follow** coding standards (see [Contributing Guide](CONTRIBUTING.md))
+3. **Follow** coding standards (see [Contributing Guide](docs/CONTRIBUTING.md))
 4. **Write tests** for new functionality
 5. **Submit** a pull request
 

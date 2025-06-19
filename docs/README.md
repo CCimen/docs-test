@@ -8,7 +8,7 @@ This directory contains the complete documentation for Eneo, the democratic AI p
 
 | Document | Purpose | Audience |
 |----------|---------|----------|
-| **[PROJECT_README.md](PROJECT_README.md)** | Project overview and quick start | All users |
+| **[Project Overview](../README.md)** | Project overview and quick start | All users |
 | **[INSTALLATION.md](INSTALLATION.md)** | Development environment setup | Developers |
 | **[DEPLOYMENT.md](DEPLOYMENT.md)** | Production deployment guide | System administrators |
 | **[ARCHITECTURE.md](ARCHITECTURE.md)** | Technical architecture overview | Developers, architects |
@@ -21,7 +21,7 @@ This directory contains the complete documentation for Eneo, the democratic AI p
 ## 🎯 Quick Navigation
 
 ### For New Users
-1. Start with **[PROJECT_README.md](PROJECT_README.md)** for project overview
+1. Start with **[Project Overview](../README.md)** for project overview
 2. Follow **[INSTALLATION.md](INSTALLATION.md)** for development setup
 3. Reference **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** if issues arise
 
@@ -36,7 +36,7 @@ This directory contains the complete documentation for Eneo, the democratic AI p
 3. Use **[INSTALLATION.md](INSTALLATION.md)** for local setup
 
 ### For Public Sector Organizations
-1. **[PROJECT_README.md](PROJECT_README.md)** explains democratic AI mission
+1. **[Project Overview](../README.md)** explains democratic AI mission
 2. **[SECURITY.md](SECURITY.md)** covers compliance features
 3. **[DEPLOYMENT.md](DEPLOYMENT.md)** for organizational deployment
 

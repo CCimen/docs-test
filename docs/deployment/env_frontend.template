@@ -1,7 +1,7 @@
 # Frontend Environment Configuration for Eneo
 
 ###############
-# Public URL Configuration
+# REQUIRED: Public URL Configuration
 ###############
 # The public URL where Eneo will be accessible
 ORIGIN=https://your-domain.com
@@ -13,17 +13,10 @@ INTRIC_BACKEND_URL=https://your-domain.com
 INTRIC_BACKEND_SERVER_URL=http://backend:8000
 
 ###############
-# Authentication Configuration
+# REQUIRED: Security Settings - MUST match backend!
 ###############
-# Zitadel OIDC configuration (recommended)
-ZITADEL_INSTANCE_URL=
-ZITADEL_PROJECT_CLIENT_ID=
-
-# MobilityGuard authentication (alternative)
-MOBILITY_GUARD_AUTH=
-
-# Force legacy authentication (optional)
-FORCE_LEGACY_AUTH=false
+# Must be the same as JWT_SECRET in backend configuration
+JWT_SECRET=
 
 ###############
 # Feature Flags
@@ -34,37 +27,26 @@ SHOW_TEMPLATES=true
 # Enable web search functionality
 SHOW_WEB_SEARCH=true
 
-# Show help center features
-SHOW_HELP_CENTER=false
-
-###############
-# Support and Contact Configuration
-###############
-# External form URLs (optional)
-REQUEST_INTEGRATION_FORM_URL=
-
-# Help and support URLs
-HELP_CENTER_URL=https://www.intric.ai/en/external-support-assistant
-SUPPORT_EMAIL=support@intric.ai
-SALES_EMAIL=sales@intric.ai
-
-###############
-# Internal API Configuration (Optional)
-###############
-# System API key for internal operations
-INTRIC_SYS_API_KEY=
-
-###############
-# Build Configuration
-###############
-# SvelteKit adapter selection (node, vercel, cloudflare)
-ADAPTER=node
-
-# Development server configuration
-HOST=0.0.0.0
-
 ###############
 # Environment Settings
 ###############
 NODE_ENV=production
 LOGLEVEL=INFO
+
+###############
+# Optional: Authentication Configuration
+###############
+# MobilityGuard SSO (if using)
+# MOBILITY_GUARD_AUTH=
+
+# Force legacy authentication
+# FORCE_LEGACY_AUTH=false
+
+###############
+# Optional: Support Configuration
+###############
+# External feedback form URL
+# FEEDBACK_FORM_URL=
+
+# Support contact email
+# SUPPORT_EMAIL=support@your-domain.com
